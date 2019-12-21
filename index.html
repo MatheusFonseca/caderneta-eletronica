@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet"> 
+  <link rel="stylesheet" href="style.css">
+  <script src="https://kit.fontawesome.com/a592e1218e.js"></script>
+  <title>Document</title>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h2 class="heading">Adicionar Cliente</h2>
+      <form class="form">
+        <input class="form__input" type="text">
+        <button class="form__button"><i class="fa fa-plus"></i></button>
+      </form>
+    </div>
+    <div class="card">
+      <h2 class="heading">Adicionar Venda</h2>
+      <form class="form form--multiline">
+        <input class="form__input form__input--user" type="text" placeholder="Cliente">
+        <input class="form__input" type="text" placeholder="Produto">
+        <input class="form__input" type="text" placeholder="Valor">
+        <input class="form__input" type="text" placeholder="Produto">
+        <input class="form__input" type="text" placeholder="Valor">
+        <button class="form__button"><i class="fa fa-plus"></i></button>
+      </form>
+    </div>
+    <div class="card">
+      <h2 class="heading">Clientes</h2>
+      <form class="form">
+        <input class="form__input" type="text" placeholder="Pesquisar...">
+        <button class="form__button"><i class="fa fa-search"></i></button>
+      </form>
+    </div>
+    <ul class="list">
+      <li class="list__user">
+        <h3 class="list__user-name">Maria</h3>
+        <ul class="list__user-info">
+          <li class="list__date">16/12/2019</li>
+          <li class="list__entry"><span class="list__entry-name">Desodorante Kaiak</span><span class="list__entry-value">R$ 16,50</span></li>
+          <li class="list__entry"><span class="list__entry-name">Sabonete Ekos</span><span class="list__entry-value">R$ 10,00</span></li>
+          <li class="list__entry list__entry--pay"><span class="list__entry-name">Pagamento</span><span class="list__entry-value">R$ 26,50</span></li>
+          <li class="list__balance"><span class="list__entry-name">Saldo Maria: </span><span class="list__entry-value">R$ 0</span></li>
+        </ul>
+      </li>
+      <li class="list__user">
+        <h3 class="list__user-name">Ana</h3>
+        <ul class="list__user-info">
+          <li class="list__date">29/11/2019</li>
+          <li class="list__entry"><span class="list__entry-name">Perfume Luna</span><span class="list__entry-value">R$ 103,60</span></li>
+          <li class="list__date">05/12/2019</li>
+          <li class="list__entry"><span class="list__entry-name">Desodorante Kaiak</span><span class="list__entry-value">R$ 16,50</span></li>
+          <li class="list__entry"><span class="list__entry-name">Sabonete Ekos</span><span class="list__entry-value">R$ 10,00</span></li>
+          <li class="list__entry"><span class="list__entry-name">Creme de mão</span><span class="list__entry-value">R$ 35,00</span></li>
+          <li class="list__date">20/12/2019</li>
+          <li class="list__entry list__entry--pay"><span class="list__entry-name">Pagamento</span><span class="list__entry-value">R$ 100,00</span></li>
+          <li class="list__balance list__balance--neg"><span class="list__entry-name">Saldo Ana: </span><span class="list__entry-value">R$ -38,60</span></li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+</body>
+</html>

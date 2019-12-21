@@ -1,0 +1,145 @@
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* VARIAVEIS */
+:root{
+  --pos-balance-color: #73bfe1;
+  --neg-balance-color: #fac56c;
+  --payment-color: #82e3aa;
+  --light-color: #ccc;
+  --dark-color: #333;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+}
+
+input, textarea, button, select {
+  font-family: inherit; /* Campos de formulários nao herdam a fonte aplicada no body por padrão */
+}
+
+/* UTILITIES */
+.container {
+  max-width: 1200px;
+  margin: auto;
+  overflow: hidden;
+  padding: 1rem;
+}
+
+/* CARD */
+.card {
+  padding: 1rem;
+  margin: .5rem 0;
+}
+
+/* HEADING */
+.heading {
+  color: var(--dark-color);
+}
+
+/* FORMULÁRIO */
+.form {
+  width: 100%;
+  display: flex;
+}
+
+.form--multiline {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 75% 25%;
+}
+
+.form__input {
+  flex: 1;
+  font-size: 1.1rem;
+  padding: .5rem 0.3rem;
+  margin: .3rem 0;
+  border: 1px solid var(--light-color);
+  color: var(--dark-color);
+}
+
+.form__input--user {
+  grid-column: 1 / span 2;
+}
+
+.form__button {
+  padding: .5rem;
+  margin: .3rem 0;
+  font-size: 1rem;
+  width: 50px;
+  background-color: var(--light-color);
+  border: none;
+  color: var(--dark-color);
+}
+
+.list {
+  list-style: none;
+  padding: 0 1rem;
+  color: var(--dark-color);
+}
+
+.list__user {
+  margin: 2rem 0;
+}
+
+.list__user-name {
+  font-size: 1.3rem;
+  text-align: center;
+}
+
+.list__user-info {
+  list-style: none;
+}
+
+.list__date {
+  padding: .3rem 0;
+  margin-top: .5rem;
+  text-align: center;
+}
+
+.list__entry {
+  display: flex;
+  justify-content: space-between;
+  padding: .4rem .5rem;
+}
+
+.list__entry:not(.list__entry--pay):nth-child(odd) {
+  background-color: #f4f4f4;
+}
+
+.list__entry:not(.list__entry--pay):nth-child(even) {
+  background-color: #ddd;
+}
+
+.list__entry--pay {
+  background-color: var(--payment-color);
+}
+
+.list__entry-name {
+
+}
+
+.list__entry-value {
+  
+}
+
+.list__balance {
+  display: flex;
+  justify-content: space-between;
+  padding: .4rem .5rem;
+  font-weight: bold;
+  background-color: var(--pos-balance-color);
+}
+
+.list__balance--neg {
+  /* background-color: #ef7161; */
+  background-color: var(--neg-balance-color);
+  /* background-color: #f7a58f; */
+}
+
+
+
