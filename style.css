@@ -24,7 +24,7 @@ input, textarea, button, select {
 
 /* UTILITIES */
 .container {
-  max-width: 1200px;
+  max-width: 500px;
   margin: auto;
   overflow: hidden;
   padding: 1rem;
