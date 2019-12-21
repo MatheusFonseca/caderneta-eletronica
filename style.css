@@ -8,7 +8,7 @@
 /* VARIAVEIS */
 :root{
   --pos-balance-color: #73bfe1;
-  --neg-balance-color: #fac56c;
+  --neg-balance-color: #f4974b;
   --payment-color: #82e3aa;
   --light-color: #ccc;
   --dark-color: #333;
@@ -32,7 +32,7 @@ input, textarea, button, select {
 
 /* CARD */
 .card {
-  padding: 1rem;
+  padding: 1rem .5rem;
   margin: .5rem 0;
 }
 
@@ -50,7 +50,7 @@ input, textarea, button, select {
 .form--multiline {
   width: 100%;
   display: grid;
-  grid-template-columns: 75% 25%;
+  grid-template-columns: 55% 15% 20% 10%;
 }
 
 .form__input {
@@ -62,8 +62,16 @@ input, textarea, button, select {
   color: var(--dark-color);
 }
 
-.form__input--user {
-  grid-column: 1 / span 2;
+.form__input[type="number"] {
+  width: 100%;
+}
+
+/* .form__input--user {
+  grid-column: 1 / span ;
+} */
+
+.form__input--date {
+  grid-column: 2 / span 3;
 }
 
 .form__button {
@@ -74,6 +82,20 @@ input, textarea, button, select {
   background-color: var(--light-color);
   border: none;
   color: var(--dark-color);
+}
+
+.form__button--remove {
+  width: auto;
+  background-color: #fff;
+  color: var(--dark-color);
+}
+
+.form__button--confirm {
+  width: auto;
+  background-color: var(--light-color);
+  color: var(--dark-color);
+  font-weight: bold;
+  grid-column: 2 / span 3;
 }
 
 .list {
@@ -136,9 +158,7 @@ input, textarea, button, select {
 }
 
 .list__balance--neg {
-  /* background-color: #ef7161; */
   background-color: var(--neg-balance-color);
-  /* background-color: #f7a58f; */
 }
 
 
