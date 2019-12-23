@@ -60,7 +60,6 @@ input, textarea, button, select {
   overflow: hidden;
 }
 
-
 .form__input {
   flex: auto;
   font-size: 1.1rem;
@@ -77,6 +76,10 @@ input, textarea, button, select {
   background-color: var(--light-color);
   border: none;
   color: var(--dark-color);
+}
+
+.form__button--disabled {
+  visibility: hidden;
 }
 
 .form__button i {

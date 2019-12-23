@@ -2,6 +2,7 @@ class LocalStorageCrtl {
 
   constructor () {
     this.clientes = this.getClientes();
+    this.vendas = this.getVendas();
   }
 
   getClientes() {
@@ -12,10 +13,24 @@ class LocalStorageCrtl {
     }
   }
 
+  getVendas() {
+    if(localStorage.getItem('vendas') === null) {
+      return [];
+    } else {
+      return JSON.parse(localStorage.getItem('vendas'));
+    }
+  }
+
   saveCliente(cliente) {
     this.clientes = this.getClientes();
     this.clientes.push(cliente);
     localStorage.setItem('clientes', JSON.stringify(this.clientes));
+  }
+
+  saveVendas(venda){
+    this.vendas = this.getVendas();
+    this.vendas.push(venda);
+    localStorage.setItem('vendas', JSON.stringify(this.vendas));
   }
 
 }
@@ -28,7 +43,11 @@ class UI {
       addClientInput: '#addClientInput',
       removeProdBtn: '.form__button--remove',
       addProdutoBtn: '#addProdutoBtn',
-      addVendaForm: '.form--multiline'
+      addVendaForm: '.form--multiline',
+      addVendaConfirm: '.form__button--confirm',
+      vendaClienteInput: '.form__input--user',
+      vendaDataInput: '.form__input--date',
+      produtoVenda: '.form__produto'
     };
   }
 
@@ -59,7 +78,7 @@ class UI {
     // Novo campo de quantidade do produto
     const novaQtde = document.createElement('input');
     novaQtde.classList = 'form__input';
-    novaQtde.setAttribute('type', 'number');
+    novaQtde.setAttribute('type', 'text');
     novaQtde.setAttribute('value', '1');
     novaQtde.setAttribute('min', '0');
 
@@ -86,13 +105,18 @@ class UI {
 
   removeProduto(e) {
 
+    e.preventDefault();
+    const produto = e.target.parentElement.parentElement;
+
     // Usando event delegation 
     if(e.target.classList.contains('fa-times')) {
-      
-      e.preventDefault();
 
-      const produto = e.target.parentElement.parentElement;
-      produto.remove();
+      // Se ele for o primeiro produto ele nao pode ser apagado
+      if(!produto.previousElementSibling.classList.contains('form__input--date')) {
+
+        produto.remove();
+      }
+
     }
   }
 }
@@ -140,12 +164,28 @@ class VendaCtrl {
     this.ui = UI;
     this.lsCrtl = localStorageCrtl;
     this.uiSelectors = this.ui.getSelectors();
+    this.vendas = localStorageCrtl.getVendas();
+    this.idGenerator = () => Math.random().toString(36).substr(2, 9);
   }
 
   addVenda(e) {
 
+    e.preventDefault();
 
+    // Capturando valores do formulario
+    const clienteInput = document.querySelector(this.uiSelectors.vendaClienteInput);
+    const cliente = clienteInput.value;
 
+    const dataInput = document.querySelector(this.uiSelectors.vendaDataInput);
+    const data = dataInput.value;
+
+    const produtosArrayInput = Array.from(document.querySelectorAll(this.uiSelectors.produtoVenda));
+
+    produtosArrayInput.forEach(produto => {
+      
+    });
+
+    console.log(produtosArray);
   }
 
 }
@@ -168,5 +208,5 @@ function app() {
   document.querySelector(uiSelectors.addClientBtn).addEventListener('click', e => clienteCtrl.addCliente(e)); // Usar arrow function por causa do lexical this
   document.querySelector(uiSelectors.addProdutoBtn).addEventListener('click', e => ui.addProduto(e));
   document.querySelector(uiSelectors.addVendaForm).addEventListener('click', e => ui.removeProduto(e));    // Usando event delegation 
-
+  document.querySelector(uiSelectors.addVendaConfirm).addEventListener('click', e => vendaCtrl.addVenda(e));
 }
