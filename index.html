@@ -23,11 +23,13 @@
       <form class="form form--multiline">
         <input class="form__input form__input--user" type="text" placeholder="Cliente">
         <input class="form__input form__input--date" type="date">
-        <input class="form__input" type="text" placeholder="Produto">
-        <input class="form__input" value="1" type="number" min="0">
-        <input class="form__input" type="text" placeholder="Valor">
-        <button class="form__button form__button--remove"><i class="fa fa-times"></i></button>
-        <button class="form__button"><i class="fa fa-plus"></i></button>
+        <fieldset class="form__produto">
+          <input class="form__input" type="text" placeholder="Produto">
+          <input class="form__input" value="1" type="number" min="0">
+          <input class="form__input" type="text" placeholder="Valor">
+          <button class="form__button form__button--remove"><i class="fa fa-times"></i></button>
+        </fieldset>
+        <button class="form__button" id="addProdutoBtn"><i class="fa fa-plus"></i></button>
         <button class="form__button form__button--confirm">Confirmar</button>
       </form>
     </div>

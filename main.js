@@ -25,7 +25,10 @@ class UI {
   constructor () {
     this.uiSelectors = {
       addClientBtn: '#addClientBtn',
-      addClientInput: '#addClientInput'
+      addClientInput: '#addClientInput',
+      removeProdBtn: '.form__button--remove',
+      addProdutoBtn: '#addProdutoBtn',
+      addVendaForm: '.form--multiline'
     };
   }
 
@@ -35,6 +38,62 @@ class UI {
 
   clearInput (selector) {
     document.querySelector(this.uiSelectors[selector]).value = '';
+  }
+
+  addProduto(e) {
+
+    e.preventDefault();
+    
+    const addBtn = e.currentTarget;
+    const formulario = document.querySelector(this.uiSelectors.addVendaForm);
+    // Criando um novo elemento do produto
+    const novoProduto = document.createElement('fieldset');
+    novoProduto.classList = 'form__produto';
+
+    // Novo campo de nome do produto
+    const novoNome = document.createElement('input');
+    novoNome.classList = 'form__input';
+    novoNome.setAttribute('type', 'text');
+    novoNome.setAttribute('placeholder', 'Produto');
+
+    // Novo campo de quantidade do produto
+    const novaQtde = document.createElement('input');
+    novaQtde.classList = 'form__input';
+    novaQtde.setAttribute('type', 'number');
+    novaQtde.setAttribute('value', '1');
+    novaQtde.setAttribute('min', '0');
+
+    // Novo campo de valor do produto
+    const novoValor = document.createElement('input');
+    novoValor.classList = 'form__input';
+    novoValor.setAttribute('type', 'text');
+    novoValor.setAttribute('placeholder', 'Valor');
+
+    // Novo X de remover
+    const novoBotao = document.createElement('button');
+    novoBotao.classList = 'form__button form__button--remove';
+    novoBotao.innerHTML = '<i class="fa fa-times"></i>';
+
+    // Ligando os novos campos ao novo fieldset
+    novoProduto.appendChild(novoNome);
+    novoProduto.appendChild(novaQtde);
+    novoProduto.appendChild(novoValor);
+    novoProduto.appendChild(novoBotao);
+
+    // Inserindo na UI no final da lista
+    formulario.insertBefore(novoProduto, addBtn);
+  }
+
+  removeProduto(e) {
+
+    // Usando event delegation 
+    if(e.target.classList.contains('fa-times')) {
+      
+      e.preventDefault();
+
+      const produto = e.target.parentElement.parentElement;
+      produto.remove();
+    }
   }
 }
 
@@ -63,16 +122,30 @@ class ClienteCtrl{
 
       const cliente = {
         id: this.idGenerator(),
-        nome: nomeCliente
+        nome: nomeCliente, 
+        saldo: 0
       }
       this.clientes.push(cliente);
       this.lsCrtl.saveCliente(cliente);
     }
 
     this.ui.clearInput('addClientInput');
+  }
 
-    e.preventDefault();
- 
+}
+
+class VendaCtrl {
+
+  constructor(UI, localStorageCrtl){
+    this.ui = UI;
+    this.lsCrtl = localStorageCrtl;
+    this.uiSelectors = this.ui.getSelectors();
+  }
+
+  addVenda(e) {
+
+
+
   }
 
 }
@@ -89,11 +162,11 @@ function app() {
   const uiSelectors = ui.getSelectors();
   const localStorageCrtl = new LocalStorageCrtl();
   const clienteCtrl = new ClienteCtrl(ui, localStorageCrtl);
+  const vendaCtrl = new VendaCtrl(ui, localStorageCrtl);
 
   // Adicionando listeners
-  document.querySelector(uiSelectors.addClientBtn).addEventListener('click', evt => clienteCtrl.addCliente(evt)); // Estudar por que a arrow function muda o 'this' dentro do event handler
-
-
-  
+  document.querySelector(uiSelectors.addClientBtn).addEventListener('click', e => clienteCtrl.addCliente(e)); // Usar arrow function por causa do lexical this
+  document.querySelector(uiSelectors.addProdutoBtn).addEventListener('click', e => ui.addProduto(e));
+  document.querySelector(uiSelectors.addVendaForm).addEventListener('click', e => ui.removeProduto(e));    // Usando event delegation 
 
 }
