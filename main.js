@@ -13,6 +13,24 @@ class LocalStorageCrtl {
     }
   }
 
+  getSaldoCliente(id){
+    this.clientes.forEach(cliente => {
+      if(cliente.id == id) return cliente.saldo;
+    });
+    return null;
+  }
+
+  updateSaldoCliente(id, novoSaldo){
+
+    this.clientes = this.getClientes();
+
+    this.clientes.forEach(cliente => {
+      if(cliente.id == id) cliente.saldo = novoSaldo;
+    });
+
+    localStorage.setItem('clientes', JSON.stringify(this.clientes));
+  }
+
   getVendas() {
     if(localStorage.getItem('vendas') === null) {
       return [];
@@ -27,7 +45,7 @@ class LocalStorageCrtl {
     localStorage.setItem('clientes', JSON.stringify(this.clientes));
   }
 
-  saveVendas(venda){
+  saveVenda(venda){
     this.vendas = this.getVendas();
     this.vendas.push(venda);
     localStorage.setItem('vendas', JSON.stringify(this.vendas));
@@ -57,6 +75,55 @@ class UI {
 
   clearInput (selector) {
     document.querySelector(this.uiSelectors[selector]).value = '';
+  }
+
+  limparFormVenda(){
+    
+    this.clearInput('vendaDataInput');
+    const produtosArrayInput = Array.from(document.querySelectorAll(this.uiSelectors.produtoVenda));
+
+    produtosArrayInput.forEach(produtoInput => {
+
+      // Limpa o primeiro e apaga os outros
+      if(produtoInput.previousElementSibling.classList.contains('form__input--date')) {
+
+        const nomeProdutoInput = produtoInput.firstElementChild;
+        nomeProdutoInput.value = '';
+        
+        const dataProdutoInput = nomeProdutoInput.nextElementSibling;
+        dataProdutoInput.value = '';
+  
+        const valorProdutoInput = dataProdutoInput.nextElementSibling.value = '';
+
+      } else {
+        produtoInput.remove();
+      }
+
+
+    });
+
+  }
+
+  setClientes(clientes){
+
+    const vendaClienteInput = document.querySelector(this.uiSelectors.vendaClienteInput);
+
+    clientes.forEach(cliente => {
+      const option = document.createElement('option');
+      option.setAttribute('value', cliente.id);
+      option.innerText = cliente.nome;
+      vendaClienteInput.appendChild(option);
+    });
+  }
+
+  updateSetClientes(cliente){
+    const vendaClienteInput = document.querySelector(this.uiSelectors.vendaClienteInput);
+
+    const option = document.createElement('option');
+    option.setAttribute('value', cliente.id);
+    option.innerText = cliente.nome;
+    vendaClienteInput.appendChild(option);
+
   }
 
   addProduto(e) {
@@ -129,6 +196,11 @@ class ClienteCtrl{
     this.uiSelectors = this.ui.getSelectors();
     this.clientes = localStorageCrtl.getClientes();
     this.idGenerator = () => Math.random().toString(36).substr(2, 9);
+    this.setClientesUI();
+  }
+
+  setClientesUI(){
+    this.ui.setClientes(this.clientes);
   }
 
   addCliente(e) {
@@ -151,9 +223,11 @@ class ClienteCtrl{
       }
       this.clientes.push(cliente);
       this.lsCrtl.saveCliente(cliente);
+      this.ui.updateSetClientes(cliente);
     }
 
     this.ui.clearInput('addClientInput');
+
   }
 
 }
@@ -174,18 +248,48 @@ class VendaCtrl {
 
     // Capturando valores do formulario
     const clienteInput = document.querySelector(this.uiSelectors.vendaClienteInput);
-    const cliente = clienteInput.value;
+    const clienteNome = clienteInput.options[clienteInput.selectedIndex].text;
+    const clienteID = clienteInput.value;
 
     const dataInput = document.querySelector(this.uiSelectors.vendaDataInput);
     const data = dataInput.value;
 
     const produtosArrayInput = Array.from(document.querySelectorAll(this.uiSelectors.produtoVenda));
+    const produtosArray = [];
+    let custoTotal = 0;
 
-    produtosArrayInput.forEach(produto => {
+    produtosArrayInput.forEach(produtoInput => {
+      const produto = {};
+
+      const nomeProdutoInput = produtoInput.firstElementChild;
+      produto.nomeProduto = nomeProdutoInput.value;
       
+      const qtdeProdutoInput = nomeProdutoInput.nextElementSibling;
+      produto.qtde = qtdeProdutoInput.value;
+
+      const valorProdutoInput = qtdeProdutoInput.nextElementSibling;
+      produto.valor = valorProdutoInput.value;
+
+      custoTotal += produto.qtde * parseFloat(produto.valor);
+
+      produtosArray.push(produto);
+
     });
 
-    console.log(produtosArray);
+    const venda = {
+      id: this.idGenerator(),
+      cliente: {
+        id: clienteID,
+        nome: clienteNome
+      },
+      data: data,
+      produtos: produtosArray
+    }
+
+    this.lsCrtl.saveVenda(venda);
+    const saldoAtual = this.lsCrtl.getSaldoCliente(clienteID);
+    this.lsCrtl.updateSaldoCliente(clienteID, saldoAtual + custoTotal);
+    this.ui.limparFormVenda();
   }
 
 }
