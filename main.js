@@ -13,10 +13,11 @@ class LocalStorageCrtl {
     }
   }
 
-  getSaldoCliente(id){
-    this.clientes.forEach(cliente => {
-      if(cliente.id == id) return cliente.saldo;
-    });
+  getSaldoCliente(pID){
+    
+    for(let i = 0; i < this.clientes.length; i++){
+      if(this.clientes[i].id == pID) return this.clientes[i].saldo;
+    }
     return null;
   }
 
@@ -25,7 +26,7 @@ class LocalStorageCrtl {
     this.clientes = this.getClientes();
 
     this.clientes.forEach(cliente => {
-      if(cliente.id == id) cliente.saldo = novoSaldo;
+      if(cliente.id == id) cliente.saldo = parseFloat(novoSaldo.toFixed(2));
     });
 
     localStorage.setItem('clientes', JSON.stringify(this.clientes));
@@ -246,17 +247,46 @@ class VendaCtrl {
 
     e.preventDefault();
 
+    let valido = {
+      valor: true,
+      mensagem: 'A venda foi inserida com sucesso!'
+    }
+
     // Capturando valores do formulario
     const clienteInput = document.querySelector(this.uiSelectors.vendaClienteInput);
-    const clienteNome = clienteInput.options[clienteInput.selectedIndex].text;
-    const clienteID = clienteInput.value;
+
+    let clienteNome = null;
+    let clienteID = null;
+
+    // Se existir algum cliente cadastrado
+    if(clienteInput.options.length > 0){
+      clienteNome = clienteInput.options[clienteInput.selectedIndex].text;
+      clienteID = clienteInput.value;
+    } else {
+      valido.valor = false;
+      valido.mensagem = 'É necessário cadastrar um Cliente antes';
+    }
 
     const dataInput = document.querySelector(this.uiSelectors.vendaDataInput);
-    const data = dataInput.value;
+    let dataString = dataInput.value;
+    // expressão regular que valida datas no formato DD/MM/AAAA
+    const dataRegex = /^(((0[1-9]|[12]\d|3[01])\/(0[13578]|1[02])\/((19|[2-9]\d)\d{2}))|((0[1-9]|[12]\d|30)\/(0[13456789]|1[012])\/((19|[2-9]\d)\d{2}))|((0[1-9]|1\d|2[0-8])\/02\/((19|[2-9]\d)\d{2}))|(29\/02\/((1[6-9]|[2-9]\d)(0[48]|[2468][048]|[13579][26])|((16|[2468][048]|[3579][26])00))))$/g;
+    
+    // Formatando a data
+    const parts = dataString.split(/-/);
+    dataString = [ parts[2], parts[1], parts[0] ].join('/');
+
+    if(!dataRegex.test(dataString.replace(/-/g, '/')) && valido.valor){
+      valido.valor = false;
+      valido.mensagem = 'Insira uma data válida';
+    }
 
     const produtosArrayInput = Array.from(document.querySelectorAll(this.uiSelectors.produtoVenda));
     const produtosArray = [];
     let custoTotal = 0;
+    // Regex para os produtos
+    const qtdeRegex = /^0[1-9]$|^[1-9][0-9]?$|^100$/; // 1 a 100
+    const valorRegex = /^[0-9][0-9]?[0-9]?([,.][0-9])?[0-9]?$/; // entre 0 (incluso) e 1000 (não incluso) com decimais (2 casas)
 
     produtosArrayInput.forEach(produtoInput => {
       const produto = {};
@@ -268,28 +298,49 @@ class VendaCtrl {
       produto.qtde = qtdeProdutoInput.value;
 
       const valorProdutoInput = qtdeProdutoInput.nextElementSibling;
-      produto.valor = valorProdutoInput.value;
+      produto.valor = parseFloat(valorProdutoInput.value.replace(',', '.'));
 
-      custoTotal += produto.qtde * parseFloat(produto.valor);
+      if(produto.nomeProduto == '' && valido.valor){
+        valido.valor = false;
+        valido.mensagem = 'Insira o nome do produto';
+
+      } else if(!qtdeRegex.test(produto.qtde) && valido.valor) {
+        valido.valor = false;
+        valido.mensagem = `Insira a quantidade do produto ${produto.nomeProduto}`;
+        
+      } else if(!valorRegex.test(produto.valor) && valido.valor) {
+        valido.valor = false;
+        valido.mensagem = `Insira o valor do produto ${produto.nomeProduto}`;
+      }
+
+      custoTotal += produto.qtde * produto.valor;
 
       produtosArray.push(produto);
 
     });
 
-    const venda = {
-      id: this.idGenerator(),
-      cliente: {
-        id: clienteID,
-        nome: clienteNome
-      },
-      data: data,
-      produtos: produtosArray
+    // Se tudo estiver correto a venda é cadastrada, senão, uma mensagem personalizada de erro é mostrada
+    if(valido.valor) {
+
+      const venda = {
+        id: this.idGenerator(),
+        cliente: {
+          id: clienteID,
+          nome: clienteNome
+        },
+        data: dataString,
+        produtos: produtosArray
+      }
+
+      this.lsCrtl.saveVenda(venda);
+      const saldoAtual = this.lsCrtl.getSaldoCliente(clienteID);
+      this.lsCrtl.updateSaldoCliente(clienteID, saldoAtual + custoTotal);
+      this.ui.limparFormVenda();
+
+    } else {
+      alert(valido.mensagem);
     }
 
-    this.lsCrtl.saveVenda(venda);
-    const saldoAtual = this.lsCrtl.getSaldoCliente(clienteID);
-    this.lsCrtl.updateSaldoCliente(clienteID, saldoAtual + custoTotal);
-    this.ui.limparFormVenda();
   }
 
 }
