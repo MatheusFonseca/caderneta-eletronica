@@ -56,7 +56,8 @@ class LocalStorageCrtl {
 
 class UI {
 
-  constructor () {
+  constructor (localStorageCrtl) {
+    this.lsCrtl = localStorageCrtl;
     this.uiSelectors = {
       addClientBtn: '#addClientBtn',
       addClientInput: '#addClientInput',
@@ -66,8 +67,10 @@ class UI {
       addVendaConfirm: '.form__button--confirm',
       vendaClienteInput: '.form__input--user',
       vendaDataInput: '.form__input--date',
-      produtoVenda: '.form__produto'
+      produtoVenda: '.form__produto',
+      listaVendas: '.list'
     };
+    this.loadVendas();
   }
 
   getSelectors () {
@@ -187,6 +190,101 @@ class UI {
 
     }
   }
+
+  loadVendas() {
+
+    const clientes = this.lsCrtl.getClientes();
+    let vendas = this.lsCrtl.getVendas();
+
+    // Lista as compras de cada cliente
+    clientes.forEach(cliente => {
+      
+      const vendasCliente = vendas.filter(venda => venda.cliente.id == cliente.id);
+
+      // Bloco inteiro do cliente
+      const blocoCliente = document.createElement('li');
+      blocoCliente.classList.value = "list__user";
+
+      // Nome
+      const nomeCliente = document.createElement('h3');
+      nomeCliente.classList.value = "list__user-name";
+      nomeCliente.innerText = cliente.nome;
+      blocoCliente.appendChild(nomeCliente);
+
+      // Lista de compras do cliente
+      const listaCliente = document.createElement('ul');
+      listaCliente.classList.value = "list__user-info";
+      blocoCliente.appendChild(listaCliente);
+
+      // filtra datas distinct 
+      const datas = vendasCliente.map(venda => venda.data).filter((data, indice, self) => self.indexOf(data) === indice);
+
+      // Lista as vendas do cliente em cada data
+      datas.forEach(data => {
+
+        // Compras de X cliente em Y data
+        const vendasClientesData = vendasCliente.filter(venda => venda.data == data);
+
+        // Data da(s) compra(s)
+        const dataUI = document.createElement('li');
+        dataUI.classList.value = 'list__date';
+        dataUI.innerText = data;
+        listaCliente.appendChild(dataUI);
+
+        // Compras de X cliente em Y data
+        vendasClientesData.forEach(venda => {
+
+          // Todos os produtos daquela venda
+          const produtos = venda.produtos;
+          produtos.forEach(produto => {
+
+            const produtoInput = document.createElement('li');
+            produtoInput.classList.value = 'list__entry';
+            listaCliente.appendChild(produtoInput);
+  
+            const produtoNome = document.createElement('span');
+            produtoNome.classList.value = 'list__entry-name';
+            produtoNome.innerText = `${produto.qtde}x ${produto.nomeProduto}`;
+            produtoInput.appendChild(produtoNome);
+
+            const produtoValor = document.createElement('span');
+            produtoValor.classList.value = 'list__entry-value';
+            produtoValor.innerText = `R$ ${(produto.valor * produto.qtde).toFixed(2).toString().replace('.', ',')}`;
+            produtoInput.appendChild(produtoValor);
+
+          });
+
+        });
+
+      });
+
+      // Mostra o saldo do cliente
+      const saldo = document.createElement('li');
+      saldo.classList.value = 'list__balance list__balance--neg';
+      listaCliente.appendChild(saldo);
+
+      // Nome Saldo
+      const nomeSaldo = document.createElement('span');
+      nomeSaldo.classList.value = 'list__entry-name';
+      nomeSaldo.innerText = `Saldo ${cliente.nome}:`;
+      saldo.appendChild(nomeSaldo);
+
+      // Saldo
+      const saldoValor = document.createElement('span');
+      saldoValor.classList.value = 'list__entry-value';
+      saldoValor.innerText = `R$ ${cliente.saldo.toFixed(2).toString().replace('.', ',')}`;
+      saldo.appendChild(saldoValor);
+
+      // Insere na UI
+      const listaVendas = document.querySelector(this.uiSelectors.listaVendas);
+      listaVendas.appendChild(blocoCliente);
+
+    });
+
+
+
+  }
+
 }
 
 class ClienteCtrl{
@@ -353,9 +451,9 @@ document.addEventListener('DOMContentLoaded', app());
 function app() {
 
   // Inicializando controllers
-  const ui = new UI();
-  const uiSelectors = ui.getSelectors();
   const localStorageCrtl = new LocalStorageCrtl();
+  const ui = new UI(localStorageCrtl);
+  const uiSelectors = ui.getSelectors();
   const clienteCtrl = new ClienteCtrl(ui, localStorageCrtl);
   const vendaCtrl = new VendaCtrl(ui, localStorageCrtl);
 
