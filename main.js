@@ -1,3 +1,10 @@
+/**
+ * Add two numbers together
+ * @param  {Number} num1 The first number
+ * @param  {Number} num2 The second number
+ * @return {Number}      The total of the two numbers
+ */
+
 class LocalStorageCrtl {
 
   constructor () {
@@ -68,7 +75,10 @@ class UI {
       vendaClienteInput: '.form__input--user',
       vendaDataInput: '.form__input--date',
       produtoVenda: '.form__produto',
-      listaVendas: '.list'
+      listaVendas: '.list',
+      listaVendasNome: '.list__user-name',
+      filtroClientes: '#filtroClientes',
+      listaClientes: '.list__user'
     };
     this.loadVendas();
   }
@@ -79,6 +89,88 @@ class UI {
 
   clearInput (selector) {
     document.querySelector(this.uiSelectors[selector]).value = '';
+  }
+
+  filtrarClientes(e) {
+
+    const clientes = Array.from(document.querySelectorAll(this.uiSelectors.listaClientes));
+
+    clientes.forEach(cliente => {
+
+      if(!cliente.firstElementChild.innerText.toLowerCase().includes(e.target.value.toLowerCase())){
+        cliente.style.display = "none";
+      } else {
+        cliente.style.display = "block";
+      }
+
+    });
+  }
+
+  atualizarLista(venda) {
+
+    const nomesLista = Array.from(document.querySelectorAll(this.uiSelectors.listaVendasNome));
+    
+    for(const nome of nomesLista){
+
+      // Encontra o cliente 
+      if(nome.getAttribute('data-id') == venda.cliente.id){
+
+        const listaCliente = nome.nextElementSibling;
+
+        // Atualizar saldo
+        const saldoValor = listaCliente.lastElementChild.lastElementChild;
+        saldoValor.innerText = `R$ ${this.lsCrtl.getSaldoCliente(venda.cliente.id).toFixed(2).toString().replace('.', ',')}`;
+        if(this.lsCrtl.getSaldoCliente(venda.cliente.id) < 0) {
+          saldoValor.parentElement.classList.value = 'list__balance list__balance--neg';
+        }
+
+        const datas = Array.from(listaCliente.children).filter(entrada => entrada.classList == 'list__date');
+        const datasString = datas.map(data => data.innerText);
+
+        // Se ja houver uma venda naquela data insere nela, senao cria uma nova data na UI
+        if(datasString.indexOf(venda.data) == -1 || datas.length == 0) {
+          const novaData = document.createElement('li');
+          novaData.classList.value = 'list__date';
+          novaData.innerText = venda.data;
+          listaCliente.prepend(novaData);
+          datas.push(novaData);
+        }
+
+        for(const data of datas){
+
+          // Encontra a data
+          if(data.textContent == venda.data) {
+
+            // Todos os produtos daquela venda
+            const produtos = venda.produtos;
+            produtos.forEach(produto => {
+
+              const produtoInput = document.createElement('li');
+              produtoInput.classList.value = 'list__entry';
+              data.insertAdjacentElement('afterend', produtoInput);
+    
+              const produtoNome = document.createElement('span');
+              produtoNome.classList.value = 'list__entry-name';
+              produtoNome.innerText = `${produto.qtde}x ${produto.nomeProduto}`;
+              produtoInput.appendChild(produtoNome);
+
+              const produtoValor = document.createElement('span');
+              produtoValor.classList.value = 'list__entry-value';
+              produtoValor.innerText = `R$ ${(produto.valor * produto.qtde).toFixed(2).toString().replace('.', ',')}`;
+              produtoInput.appendChild(produtoValor);
+
+            });
+
+
+          }
+
+        }
+
+      }
+
+    }
+  
+
   }
 
   limparFormVenda(){
@@ -118,6 +210,7 @@ class UI {
       option.innerText = cliente.nome;
       vendaClienteInput.appendChild(option);
     });
+
   }
 
   updateSetClientes(cliente){
@@ -127,6 +220,47 @@ class UI {
     option.setAttribute('value', cliente.id);
     option.innerText = cliente.nome;
     vendaClienteInput.appendChild(option);
+
+    // Bloco inteiro do cliente
+    const blocoCliente = document.createElement('li');
+    blocoCliente.classList.value = "list__user";
+
+    // Nome
+    const nomeCliente = document.createElement('h3');
+    nomeCliente.classList.value = "list__user-name";
+    nomeCliente.setAttribute('data-id', cliente.id);
+    nomeCliente.innerText = cliente.nome;
+    blocoCliente.appendChild(nomeCliente);
+
+    // Lista de compras do cliente
+    const listaCliente = document.createElement('ul');
+    listaCliente.classList.value = "list__user-info";
+    blocoCliente.appendChild(listaCliente);
+
+    // Mostra o saldo do cliente
+    const saldo = document.createElement('li');
+    if(this.lsCrtl.getSaldoCliente(cliente.id) < 0) {
+      saldo.classList.value = 'list__balance list__balance--neg';
+    } else {
+      saldo.classList.value = 'list__balance';
+    }
+    listaCliente.appendChild(saldo);
+
+    // Nome Saldo
+    const nomeSaldo = document.createElement('span');
+    nomeSaldo.classList.value = 'list__entry-name';
+    nomeSaldo.innerText = `Saldo ${cliente.nome}:`;
+    saldo.appendChild(nomeSaldo);
+
+    // Saldo
+    const saldoValor = document.createElement('span');
+    saldoValor.classList.value = 'list__entry-value';
+    saldoValor.innerText = `R$ ${cliente.saldo.toFixed(2).toString().replace('.', ',')}`;
+    saldo.appendChild(saldoValor);
+
+    // Insere na UI
+    const listaVendas = document.querySelector(this.uiSelectors.listaVendas);
+    listaVendas.appendChild(blocoCliente);
 
   }
 
@@ -208,6 +342,7 @@ class UI {
       // Nome
       const nomeCliente = document.createElement('h3');
       nomeCliente.classList.value = "list__user-name";
+      nomeCliente.setAttribute('data-id', cliente.id);
       nomeCliente.innerText = cliente.nome;
       blocoCliente.appendChild(nomeCliente);
 
@@ -260,7 +395,12 @@ class UI {
 
       // Mostra o saldo do cliente
       const saldo = document.createElement('li');
-      saldo.classList.value = 'list__balance list__balance--neg';
+      if(cliente.saldo >= 0) {
+        saldo.classList.value = 'list__balance';
+      } else {
+        saldo.classList.value = 'list__balance list__balance--neg';
+      }
+      
       listaCliente.appendChild(saldo);
 
       // Nome Saldo
@@ -432,7 +572,8 @@ class VendaCtrl {
 
       this.lsCrtl.saveVenda(venda);
       const saldoAtual = this.lsCrtl.getSaldoCliente(clienteID);
-      this.lsCrtl.updateSaldoCliente(clienteID, saldoAtual + custoTotal);
+      this.lsCrtl.updateSaldoCliente(clienteID, saldoAtual + (custoTotal * -1));
+      this.ui.atualizarLista(venda);
       this.ui.limparFormVenda();
 
     } else {
@@ -462,4 +603,5 @@ function app() {
   document.querySelector(uiSelectors.addProdutoBtn).addEventListener('click', e => ui.addProduto(e));
   document.querySelector(uiSelectors.addVendaForm).addEventListener('click', e => ui.removeProduto(e));    // Usando event delegation 
   document.querySelector(uiSelectors.addVendaConfirm).addEventListener('click', e => vendaCtrl.addVenda(e));
+  document.querySelector(uiSelectors.filtroClientes).addEventListener('keyup', e => ui.filtrarClientes(e));
 }
